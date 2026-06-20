@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Freedom Trajectory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4F5F3; --panel:#FBFBFA; --ink:#14171A; --muted:#7C8288;
+    --line:#E2E5E3; --grid:#ECEEEC; --teal:#0F766E; --teal-d:#0B5A53;
+    --amber:#C2660A; --amber-soft:rgba(194,102,10,.10); --amber-line:rgba(194,102,10,.55);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased;padding:28px 20px 40px;}
+  .wrap{max-width:980px;margin:0 auto;}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 6px;}
+  h1{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:34px;line-height:1.02;margin:0 0 8px;letter-spacing:-.01em;}
+  .sub{color:var(--muted);font-size:13.5px;line-height:1.5;max-width:62ch;margin:0 0 22px;}
+  .readout{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 18px;}
+  .stat{flex:1 1 200px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
+  .stat .lbl{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+  .stat .age{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:42px;line-height:1;margin:6px 0 2px;font-variant-numeric:tabular-nums;transition:color .2s;}
+  .stat .meta{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);}
+  .stat.pt{border-left:3px solid var(--amber);} .stat.pt .age{color:var(--amber);}
+  .stat.fi{border-left:3px solid var(--ink);}
+  .chartcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 6px 2px;margin:0 0 18px;}
+  svg{display:block;width:100%;height:auto;font-family:"IBM Plex Mono",monospace;}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 18px 6px;}
+  .panel h2{font-family:"Space Grotesk",sans-serif;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 14px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px 30px;}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr;gap:18px;}}
+  .ctrl{margin-bottom:16px;}
+  .ctrl .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;}
+  .ctrl label{font-size:13px;font-weight:500;}
+  .ctrl .val{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:13.5px;color:var(--teal);font-variant-numeric:tabular-nums;}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:3px;background:var(--line);outline:none;margin:4px 0;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--teal);border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.25);cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--teal);border:2px solid #fff;cursor:pointer;}
+  input[type=range]:focus-visible{box-shadow:0 0 0 3px rgba(15,118,110,.3);border-radius:6px;}
+  .toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--grid);}
+  .toggle:first-of-type{border-top:none;}
+  .toggle .t-txt b{font-weight:500;font-size:13px;}
+  .toggle .t-txt span{display:block;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);margin-top:2px;}
+  .sw{position:relative;width:42px;height:24px;flex:0 0 auto;}
+  .sw input{opacity:0;width:0;height:0;position:absolute;}
+  .sw .track{position:absolute;inset:0;background:var(--line);border-radius:24px;transition:background .18s;cursor:pointer;}
+  .sw .track::before{content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .18s;box-shadow:0 1px 2px rgba(0,0,0,.3);}
+  .sw input:checked + .track{background:var(--teal);}
+  .sw input:checked + .track::before{transform:translateX(18px);}
+  .sw input:focus-visible + .track{box-shadow:0 0 0 3px rgba(15,118,110,.3);}
+  .foot{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);line-height:1.6;margin:18px 2px 0;max-width:76ch;}
+  .foot b{color:var(--ink);font-weight:500;}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Financial independence · part-time first</p>
+  <h1>Freedom Trajectory</h1>
+  <p class="sub">Drag the levers and watch the age move. Built on your real numbers — ~CHF 47,200/yr cost of living, CHF 36,000 invested at 28, ~CHF 76,600 net income. Targets use the 4% rule in today's francs.</p>
+
+  <div class="readout">
+    <div class="stat pt"><div class="lbl">Part-time freedom</div><div class="age" id="ptAge">—</div><div class="meta" id="ptMeta"></div></div>
+    <div class="stat fi"><div class="lbl">Full independence</div><div class="age" id="fiAge">—</div><div class="meta" id="fiMeta"></div></div>
+  </div>
+
+  <div class="chartcard"><svg id="chart" viewBox="0 0 860 460" role="img" aria-label="Portfolio trajectory vs freedom band"></svg></div>
+
+  <div class="panel">
+    <h2>Levers</h2>
+    <div class="grid2">
+      <div>
+        <div class="ctrl"><div class="row"><label for="living">Annual living cost</label><span class="val" id="livingV"></span></div>
+          <input type="range" id="living" min="36000" max="60000" step="200" value="47200"></div>
+        <div class="ctrl"><div class="row"><label for="part">Part-time income once free</label><span class="val" id="partV"></span></div>
+          <input type="range" id="part" min="0" max="60000" step="5000" value="20000"></div>
+        <div class="ctrl"><div class="row"><label for="saas">SaaS income / month</label><span class="val" id="saasV"></span></div>
+          <input type="range" id="saas" min="0" max="4000" step="250" value="0"></div>
+        <div class="ctrl"><div class="row"><label for="proj">VG Engineering · projects / yr</label><span class="val" id="projV"></span></div>
+          <input type="range" id="proj" min="0" max="24" step="1" value="0"></div>
+        <div class="ctrl"><div class="row"><label for="ret">Expected real return</label><span class="val" id="retV"></span></div>
+          <input type="range" id="ret" min="2" max="7" step="0.5" value="4"></div>
+      </div>
+      <div>
+        <div class="toggle"><div class="t-txt"><b>Sublet a room</b><span>+CHF 10,800 / yr</span></div>
+          <label class="sw"><input type="checkbox" id="sublet" checked><span class="track"></span></label></div>
+        <div class="toggle"><div class="t-txt"><b>Finish the car (2027)</b><span>+CHF 12,700 / yr from 2028</span></div>
+          <label class="sw"><input type="checkbox" id="car" checked><span class="track"></span></label></div>
+        <div class="toggle"><div class="t-txt"><b>Max Pillar 3a</b><span>CHF 7,258 / yr → locked till 60</span></div>
+          <label class="sw"><input type="checkbox" id="p3a" checked><span class="track"></span></label></div>
+        <div class="foot" style="margin-top:14px" id="sideNote"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="foot"><b>How to read it.</b> The amber band is your freedom zone — read it like a tolerance band. Its lower edge is the portfolio that lets you go <b>part-time</b> (your part-time, SaaS and VG Engineering income cover the rest); the upper edge is <b>full</b> independence (portfolio covers everything). Those three incomes are additive — set them to your real plan (if consulting <em>is</em> your part-time work, keep the part-time slider low). Finishing the car drops its lease from your cost once you're free and frees ~CHF 12.7k/yr to invest from 2028. Pillar 3a shows as a drag because it's locked, but builds a separate post-60 floor (see note). Real return ≠ withdrawal rate: targets stay on the conservative 4% rule.</p>
+</div>
+
+<script>
+(function(){
+  const AGE0=28, INV0=36000, NET=76600, SWR=0.04;
+  const $=id=>document.getElementById(id);
+  const fmtK=v=>{ if(v>=1e6) return (v/1e6).toFixed(2)+"M"; if(v>=1000) return Math.round(v/1000)+"k"; return Math.round(v).toString(); };
+  const chf=v=>"CHF "+fmtK(v);
+
+  function model(s){
+    const sublet=s.sublet?10800:0, carFree=s.car?6720:0, saas=s.saasM*12, cons=s.proj*1500;
+    const p3aDrag=s.p3a?(7258-2000):0;
+    const effLivingFree=s.living-sublet-carFree;
+    const otherIncome=s.part+saas+cons;
+    const ptTarget=Math.max(0,effLivingFree-otherIncome)/SWR;
+    const fiTarget=effLivingFree/SWR;
+    let bal=INV0, traj=[{age:AGE0,bal}], ptAge=null, fiAge=null, locked=0, saveNow=null, saveLater=null;
+    for(let y=0;y<=47;y++){
+      const carCut=(s.car&&y>=2)?6720:0, balloon=(s.car&&y<2)?6000:0;
+      const living_y=s.living-sublet-carCut;
+      const save=NET-living_y-p3aDrag+saas+cons-balloon;
+      if(y===0)saveNow=save; if(y===2)saveLater=save;
+      bal=bal*(1+s.ret)+save;
+      if(s.p3a)locked=locked*(1+s.ret)+7258;
+      const age=AGE0+y+1; traj.push({age,bal});
+      if(ptAge===null&&ptTarget>0&&bal>=ptTarget)ptAge=age;
+      if(fiAge===null&&bal>=fiTarget)fiAge=age;
+    }
+    if(ptTarget<=INV0)ptAge=AGE0; if(fiTarget<=INV0)fiAge=AGE0;
+    return {effLivingFree,ptTarget,fiTarget,traj,ptAge,fiAge,locked,saveNow,saveLater};
+  }
+
+  function draw(m){
+    const W=860,H=460,mL=66,mR=104,mT=28,mB=42;
+    const pL=mL,pR=W-mR,pT=mT,pB=H-mB,pW=pR-pL,pH=pB-pT;
+    const ageMax=Math.min(72,Math.max((m.fiAge?m.fiAge+3:60),48));
+    const yMax=Math.max(m.fiTarget*1.15,m.traj[m.traj.length-1].bal,m.ptTarget*1.4,200000);
+    const X=a=>pL+(a-AGE0)/(ageMax-AGE0)*pW;
+    const Y=v=>pB-Math.max(0,Math.min(v,yMax))/yMax*pH;
+    let s='';
+    for(let i=0;i<=4;i++){const v=yMax*i/4,y=Y(v);
+      s+=`<line x1="${pL}" y1="${y}" x2="${pR}" y2="${y}" stroke="var(--grid)" stroke-width="1"/>`;
+      s+=`<text x="${pL-8}" y="${y+3.5}" text-anchor="end" font-size="10.5" fill="var(--muted)">${fmtK(v)}</text>`;}
+    const step=(ageMax-AGE0)>26?5:4;
+    for(let a=AGE0;a<=ageMax;a+=step){const x=X(a);
+      s+=`<text x="${x}" y="${pB+16}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${a}</text>`;}
+    s+=`<text x="${(pL+pR)/2}" y="${pB+33}" text-anchor="middle" font-size="10" letter-spacing="1.5" fill="var(--muted)">AGE</text>`;
+    const yFi=Y(m.fiTarget), yPt=Y(Math.min(m.ptTarget,yMax));
+    s+=`<rect x="${pL}" y="${yFi}" width="${pW}" height="${Math.max(0,yPt-yFi)}" fill="var(--amber-soft)"/>`;
+    s+=`<text x="${pL+8}" y="${(yFi+yPt)/2+3}" font-size="9.5" letter-spacing="1.5" fill="var(--amber)">FREEDOM BAND</text>`;
+    const tline=(y,txt,sub)=>{
+      s+=`<line x1="${pL}" y1="${y}" x2="${pR}" y2="${y}" stroke="var(--amber-line)" stroke-width="1.2" stroke-dasharray="4 3"/>`;
+      s+=`<text x="${pR+8}" y="${y-1}" font-size="11" font-weight="600" fill="var(--amber)">${txt}</text>`;
+      s+=`<text x="${pR+8}" y="${y+11}" font-size="9" fill="var(--muted)">${sub}</text>`;};
+    tline(yPt,chf(m.ptTarget),"part-time"); tline(yFi,chf(m.fiTarget),"full FI");
+    let d=''; m.traj.forEach((p,i)=>{ if(p.age>ageMax+0.5)return; d+=(i===0?'M':'L')+X(p.age).toFixed(1)+' '+Y(p.bal).toFixed(1)+' ';});
+    s+=`<path d="${d}" fill="none" stroke="var(--teal)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`;
+    const mark=(age,yv,color)=>{ if(age===null||age>ageMax)return; const x=X(age),y=Y(yv);
+      s+=`<line x1="${x}" y1="${y}" x2="${x}" y2="${pB}" stroke="${color}" stroke-width="1" stroke-dasharray="2 3" opacity=".6"/>`;
+      s+=`<circle cx="${x}" cy="${y}" r="4.5" fill="${color}" stroke="#fff" stroke-width="1.6"/>`;
+      s+=`<text x="${x}" y="${y-9}" text-anchor="middle" font-size="11" font-weight="600" fill="${color}">${age}</text>`;};
+    mark(m.ptAge,m.ptTarget,"var(--amber)"); mark(m.fiAge,m.fiTarget,"var(--ink)");
+    $('chart').innerHTML=s;
+  }
+  const ageTxt=a=>a===null?"65+":(a===AGE0?"now":a);
+
+  function render(){
+    const s={living:+$('living').value,part:+$('part').value,saasM:+$('saas').value,proj:+$('proj').value,
+      ret:+$('ret').value/100,sublet:$('sublet').checked,car:$('car').checked,p3a:$('p3a').checked};
+    $('livingV').textContent=chf(s.living);
+    $('partV').textContent=s.part?chf(s.part):"none";
+    $('saasV').textContent=s.saasM?"CHF "+s.saasM:"none";
+    $('projV').textContent=s.proj?s.proj+" · "+chf(s.proj*1500)+"/yr":"none";
+    $('retV').textContent=(s.ret*100).toFixed(1)+"%";
+    const m=model(s);
+    $('ptAge').textContent=ageTxt(m.ptAge);
+    $('fiAge').textContent=ageTxt(m.fiAge);
+    $('ptMeta').textContent=m.ptTarget<=0?"your income already covers life":"target "+chf(m.ptTarget);
+    $('fiMeta').textContent="target "+chf(m.fiTarget);
+    $('sideNote').innerHTML="Investing <b>"+chf(m.saveNow)+"/yr</b> now, rising to <b>"+chf(m.saveLater)+"/yr</b> from 2028 once the car's paid off. "
+      +(s.p3a?"Pillar 3a also builds <b>"+chf(m.locked)+"</b> by 60 (locked).":"Pillar 3a off — ~CHF 2k/yr tax left behind.");
+    draw(m);
+  }
+  ['living','part','saas','proj','ret'].forEach(id=>$(id).addEventListener('input',render));
+  ['sublet','car','p3a'].forEach(id=>$(id).addEventListener('change',render));
+  render();
+})();
+</script>
+</body>
+</html>
